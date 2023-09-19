@@ -2,6 +2,7 @@ package com.tequre.wallet.controller;
 import com.tequre.wallet.response.BulkRechargeResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -84,10 +85,17 @@ public class BulkRechargeController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 	
+//	@RequestMapping(value = "/downloadBulkRecharge", method = RequestMethod.GET)
+//    public ResponseEntity<ByteArrayResource> downloadBulkRechargeFile(@RequestParam("jobId") Integer jobId) throws IOException {
+//		return bulkRechargeService.downloadBulkRechargeFile(jobId);
+//  }
+	
 	@RequestMapping(value = "/downloadBulkRecharge", method = RequestMethod.GET)
-    public ResponseEntity<ByteArrayResource> downloadBulkRechargeFile(@RequestParam("jobId") Integer jobId) throws IOException {
+    public ResponseEntity<Map<String, Object>> downloadBulkRechargeFile(@RequestParam("jobId") Integer jobId) throws IOException {
 		return bulkRechargeService.downloadBulkRechargeFile(jobId);
   }
+	
+	
 	
 	
 }
