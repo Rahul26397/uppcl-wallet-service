@@ -1,0 +1,121 @@
+spring:
+  jackson:
+    mapper:
+      sort-properties-alphabetically: true
+  data.mongodb:
+    authentication-database: wallet
+    uri: mongodb://uppcladmin:uppcladmin%402020@10.128.48.85:27017,10.128.48.165:27017/wallet?replicaSet=rs0
+  cloud:
+    stream:
+      kafka:
+        default:
+          producer:
+            sync: true
+          consumer:
+            autoRebalanceEnabled: true
+            ackEachRecord: true
+            autoCommitOffset: true
+            ackMode: RECORD
+            autoCommitOnError: true
+            startOffset: latest
+        binder:
+          consumerProperties:
+            enable:
+              auto:
+                commit: true
+            default:
+              api:
+                timeout:
+                  ms: 300000
+            session:
+              timeout:
+                ms: 300000
+            request:
+              timeout:
+                ms: 300000
+            max:
+              poll:
+                records: 300
+                interval:
+                  ms: 300000
+          brokers: 10.128.49.30:9092,10.128.49.117:9092 # localhost:9092
+          requiredAcks: all
+          autoCreateTopics: true
+          autoAddPartitions: true
+          producerProperties:
+            acks: all
+      bindings:
+        payment-non-rapdrp-consumer:
+          destination: payment-non-rapdrp-queue
+          contentType: application/json
+          group: payment-non-rapdrp-group
+        payment-non-rapdrp-producer:
+          destination: payment-non-rapdrp-queue
+          contentType: application/json
+        payment-rapdrp-consumer:
+          destination: payment-rapdrp-queue
+          contentType: application/json
+          group: payment-rapdrp-group
+        payment-rapdrp-producer:
+          destination: payment-rapdrp-queue
+          contentType: application/json
+        registration-consumer:
+          destination: registration-queue
+          contentType: application/json
+          group: registration-group
+        registration-producer:
+          destination: registration-queue
+          contentType: application/json
+  http:
+    multipart:
+      max-file-size: 10Mb
+      max-request-size: 10Mb
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+hlf:
+  mode: LOCAL # LOCAL -> mongo / BOTH -> mongo + blockchain / REMOTE -> blockchain
+  url: http://10.128.48.103:9010/api/v1
+  isPrimary: false
+
+integration:
+  adminNode: https://ewallet-test.uppclonline.com:8280/verify-mail/1.0.0
+  adminUser: amadmin
+  adminPassword: Welcome@123
+  notifyKey: LTtSTXK7aZAXmxaySaJNuscqAIEa
+  notifySecret: pUIO803kVFop7FbUBJlbt7gXXh8a
+  tokenServer: https://ewallet-test.uppclonline.com:8280/token
+  notifyServer: https://ewallet-test.uppclonline.com:8280/notifyuser/1.0.0
+  authServer: https://ewallet-test.uppclonline.com:7777
+  billPostKey: lgJ8UxNNBHBDtUBNikRgttTkf6sa
+  billPostSecret: aBJqn8LJMstNdm0D5w280sekfuIa
+  billPostServer: https://ewallet-test.uppclonline.com:8280/billpost/1.0.0
+  rapdrpMeterAgentUrl: https://onlinebilling.uppclonline.com/UPPCL/ProxyServices/WalletAPI/OPS
+  rapdrpMeterAgentUsername: client_rest
+  rapdrpMeterAgentPassword: welcome1
+  nonRapdrpMeterAgentConfig:
+    meterAgentUrl: http://223.30.74.211:9001/metering/GenxUserDatPost.htm
+    meterAgentValidationUrl: http://223.30.74.211:9001/metering/GenxUserValidation.htm
+    puvvnlMeterAgentUrl:
+    puvvnlMeterAgentValidationUrl:
+    mvvnlMeterAgentUrl:
+    mvvnlMeterAgentValidationUrl:
+    pvvnlMeterAgentUrl:
+    pvvnlMeterAgentValidationUrl:
+    dvvnlMeterAgentUrl:
+    dvvnlMeterAgentValidationUrl:
+  mapping:
+    tokenUrl: https://ewallet-test.uppclonline.com:8280/token
+    username: uppclgenx
+    password: APimTDu!2019@
+    consumerKey: 3AVfoiZ058fqEndO_8yMN3zkwrEa
+    consumerSecret: MfxClLKLhrGWJuMU9hMDC0JaE6ca
+    url: https://ewallet-test.uppclonline.com:8280/GetUrbanRural/1.0.0
+
+scheduler:
+  meterAgentSync: '0 0 1 * * ?'
+  lowWalletBalance: '0 0 10 * * ?'
+#  blockchainSyncPartial: '0 1 0 * * ?'
+#  blockchainSyncFull: '0 1 0 * * ?'

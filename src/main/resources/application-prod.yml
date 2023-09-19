@@ -1,0 +1,54 @@
+spring:
+  jackson:
+    mapper:
+      sort-properties-alphabetically: true
+  data.mongodb:
+    authentication-database: wallet
+    uri: mongodb://uppcldbadmin:uppcldbadmin%402020@uppcl.mongodb1:27017,uppcl.mongodb:27017/wallet?replicaSet=“mongodb-rs”
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 49.50.81.178:9092,49.50.81.180:9092 # localhost:9092
+      bindings:
+        process:
+          destination: event-queue
+          contentType: application/json
+          group: processors
+        output:
+          destination: event-queue
+          contentType: application/json
+
+hlf:
+  mode: LOCAL # LOCAL -> mongo / BOTH -> mongo + blockchain / REMOTE -> blockchain
+  url: http://49.50.81.244:9010/api/v1
+  isPrimary: false
+
+integration:
+  adminNode: http://49.50.81.172:8080/v1/fsm/event
+  adminUser: amadmin
+  adminPassword: Welcome@2k19
+  notifyKey: CaNEC4YxfSgL9T069wTU1ThDbZ8a
+  notifySecret: iYdUfO1eDJIjE7u6LjPUoIHpqyca
+  tokenServer: https://49.50.81.170:8243/token
+  notifyServer: https://49.50.81.170:8243/notifyuser/1.0.0
+  authServer: https://ewallet.uppclonline.com:7777
+  billPostKey: kkeTEHKdbY2rmUpLX8gIJ9dOkqIa
+  billPostSecret: SRBOe_tZRMjV4ddFdOucF1Bggdca
+  billPostServer: https://49.50.81.170:8243/billpost/1.0.0
+  rapdrpMeterAgentUrl: https://www.uppclonline.com/UPPCL/ProxyServices/WalletAPI/OPS
+  rapdrpMeterAgentUsername: GenXWLUP
+  rapdrpMeterAgentPassword: BillingPay@9182
+  nonrapdrpMeterAgentUrl: http://223.30.74.211:9001/metering/GenxUserDatPost.htm
+  nonrapdrpMeterAgentValidationUrl: http://223.30.74.211:9001/metering/GenxUserValidation.htm
+  mapping:
+    tokenUrl: http://49.50.81.11:8280/token
+    username: uppclgenx
+    password: APimTDu!2019@
+    consumerKey: 3AVfoiZ058fqEndO_8yMN3zkwrEa
+    consumerSecret: MfxClLKLhrGWJuMU9hMDC0JaE6ca
+    url: http://49.50.81.11:8280/GetUrbanRural/1.0.0
+
+scheduler:
+  meterAgentSync: '0 0 1 * * ?'
+  lowWalletBalance: '0 0 10 * * ?'

@@ -1,0 +1,61 @@
+spring:
+  jackson:
+    mapper:
+      sort-properties-alphabetically: true
+  data.mongodb:
+    authentication-database: wallet
+    host: 49.50.81.110 # 49.50.81.172 # localhost
+    port: 27017
+    database: wallet
+    username: walletadmin
+    password: walletadmin@2020
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092 #49.50.81.178:9092,49.50.81.180:9092 # localhost:9092
+      bindings:
+        process:
+          destination: event-queue
+          contentType: application/json
+          group: processors
+        output:
+          destination: event-queue
+          contentType: application/json
+
+hlf:
+  mode: LOCAL # LOCAL -> mongo / BOTH -> mongo + blockchain / REMOTE -> blockchain
+  url: http://49.50.81.124:9010/api/v1
+  isPrimary: false
+
+# Test & Dev - http://49.50.81.19:9010/api/v1
+# Prod - http://49.50.81.244:9010/api/v1
+
+integration:
+  adminNode: http://49.50.81.110:8080/v1/fsm/event
+  adminUser: amadmin
+  adminPassword: Welcome1
+  notifyKey: LTtSTXK7aZAXmxaySaJNuscqAIEa
+  notifySecret: pUIO803kVFop7FbUBJlbt7gXXh8a
+  tokenServer: https://49.50.81.11:8243/token
+  notifyServer: https://49.50.81.11:8243/notifyuser/1.0.0
+  authServer: http://uppclwallet.online.com:8080
+  billPostKey: lgJ8UxNNBHBDtUBNikRgttTkf6sa
+  billPostSecret: aBJqn8LJMstNdm0D5w280sekfuIa
+  billPostServer: https://49.50.81.11:8243/billpost/1.0.0
+  rapdrpMeterAgentUrl: https://onlinebilling.uppclonline.com/UPPCL/ProxyServices/WalletAPI/OPS
+  rapdrpMeterAgentUsername: client_rest
+  rapdrpMeterAgentPassword: welcome1
+  nonrapdrpMeterAgentUrl: http://223.30.74.211:9001/metering/GenxUserDatPost.htm
+  nonrapdrpMeterAgentValidationUrl: http://223.30.74.211:9001/metering/GenxUserValidation.htm
+  mapping:
+    tokenUrl: http://49.50.81.11:8280/token
+    username: uppclgenx
+    password: APimTDu!2019@
+    consumerKey: 3AVfoiZ058fqEndO_8yMN3zkwrEa
+    consumerSecret: MfxClLKLhrGWJuMU9hMDC0JaE6ca
+    url: http://49.50.81.11:8280/GetUrbanRural/1.0.0
+
+scheduler:
+  meterAgentSync: '0 0 1 * * ?'
+  lowWalletBalance: '0 0 10 * * ?'

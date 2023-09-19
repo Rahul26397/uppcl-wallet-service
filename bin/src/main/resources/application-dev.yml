@@ -1,0 +1,56 @@
+spring:
+  jackson:
+    mapper:
+      sort-properties-alphabetically: true
+  data.mongodb:
+    authentication-database: admin
+    host: localhost
+    port: 27017
+    database: wallet
+    username: wadmin
+    password: wadmin
+
+hlf:
+  mode: LOCAL
+  url: http://49.50.81.124:9010/api/v1
+  isPrimary: false
+
+integration:
+  adminNode: http://49.50.81.110:8080
+  adminUser: amadmin
+  adminPassword: Welcome1
+  notifyKey: LTtSTXK7aZAXmxaySaJNuscqAIEa
+  notifySecret: pUIO803kVFop7FbUBJlbt7gXXh8a
+  tokenServer: https://49.50.81.11:8243/token
+  notifyServer: https://49.50.81.11:8243/notifyuser/1.0.0
+  authServer: http://uppclwallet.online.com:8080
+  billPostKey: lgJ8UxNNBHBDtUBNikRgttTkf6sa
+  billPostSecret: aBJqn8LJMstNdm0D5w280sekfuIa
+  billPostServer: https://49.50.81.11:8243/billpost/1.0.0
+  rapdrpMeterAgentUrl: https://onlinebilling.uppclonline.com/UPPCL/ProxyServices/WalletAPI/OPS
+  rapdrpMeterAgentUsername: client_rest
+  rapdrpMeterAgentPassword: welcome1
+  nonrapdrpMeterAgentUrl: http://223.30.74.211:9001/metering/GenxUserDatPost.htm
+  nonrapdrpMeterAgentValidationUrl: http://223.30.74.211:9001/metering/GenxUserValidation.htm
+  nonRapdrpMeterAgentConfig:
+    meterAgentUrl: http://223.30.74.211:9001/metering/GenxUserDatPost.htm
+    meterAgentValidationUrl: http://223.30.74.211:9001/metering/GenxUserValidation.htm
+    puvvnlMeterAgentUrl: https://puvvnlmob.mpower.in/metering/GenxUserDatPost.htm
+    puvvnlMeterAgentValidationUrl: https://puvvnlmob.mpower.in/metering/GenxUserValidation.htm
+    mvvnlMeterAgentUrl: https://mvvnlmob.mpower.in/metering/GenxUserDatPost.htm
+    mvvnlMeterAgentValidationUrl: https://mvvnlmob.mpower.in/metering/GenxUserValidation.htm
+    pvvnlMeterAgentUrl: https://pvvnlmob.mpower.in/metering/GenxUserDatPost.htm
+    pvvnlMeterAgentValidationUrl: https://pvvnlmob.mpower.in/metering/GenxUserValidation.htm
+    dvvnlMeterAgentUrl: https://dvvnlmob.mpower.in/metering/GenxUserDatPost.htm
+    dvvnlMeterAgentValidationUrl: https://dvvnlmob.mpower.in/metering/GenxUserValidation.htm
+  mapping:
+    tokenUrl: https://ewallet.uppclonline.com:8280/token
+    username: uppclgenx
+    password: APimUPrdU!2019@
+    consumerKey: L5n5RwGmefxUBTDsYFkjddJBmE4a
+    consumerSecret: REuTqallhTzpvdf3zDWoGLahi54a
+    url: https://ewallet.uppclonline.com:8280/GetUrbanRural/1.0.0
+
+scheduler:
+  meterAgentSync: '*/5 * * * * *' # 5 seconds
+  lowWalletBalance: '*/5 * * * * *'
