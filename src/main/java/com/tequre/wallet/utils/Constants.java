@@ -1,7 +1,13 @@
 package com.tequre.wallet.utils;
 
 public class Constants {
-
+	
+	public static final String TOKEN_URL = "https://ewallet-test.uppclonline.com:8280/token";
+    
+	public static final String API_URL = "https://ewallet-test.uppclonline.com:8280/v1transactionwallet/1.0.0";
+    
+    public static final String basicAuthorizationToken = "cEQzTTlRU3RnWnRpNnFfZ3hBbEx3NnRaWWFJYTpLWmgyc0M5WFA3TTU0VHNrekJ1T3VMNklUUjhh";
+    
     public static String USER_ID = "user_Id";
 
     public static String LEVEL_1_APPROVER_ID = "approver_Level1_Id";

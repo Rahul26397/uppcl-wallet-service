@@ -12,19 +12,9 @@ import com.tequre.wallet.data.BulkRechargeFile;
 
 public interface BulkRechargeRepository extends MongoRepository<BulkRecharge,String>{
 	
-//	@Query(value = "{$group: {_id: null, maxId: {$max: '$id'}}}")
-//    Integer findMaxId();
-	
 	public BulkRecharge findTopByOrderByIdDesc();
 	
 	List<BulkRecharge> findByJobIdAndArchivedStatus(Integer jobId,String status);
 	
 	List<BulkRecharge> findByJobIdAndStatus(Integer jobId,String status);
-	
-	//void updateStatusByJobId(Integer jobId, String newStatus);
-	
-	
-
-	
-
 }

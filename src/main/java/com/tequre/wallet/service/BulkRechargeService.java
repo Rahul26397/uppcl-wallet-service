@@ -17,27 +17,21 @@ import java.util.HashMap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
-import java.util.concurrent.CompletableFuture;
 
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -56,6 +50,8 @@ import com.tequre.wallet.data.BulkRechargeFile;
 import com.tequre.wallet.event.Event;
 import com.tequre.wallet.data.BulkRecharge;
 import com.tequre.wallet.response.TransactionWalletResponse;
+import com.tequre.wallet.utils.Constants;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -94,12 +90,9 @@ public class BulkRechargeService {
 	
 	private static Integer job_Id=null;
 	private static String email_Id=null;
-	private static final String TOKEN_URL = "https://ewallet-test.uppclonline.com:8280/token";
-    private static final String API_URL = "https://ewallet-test.uppclonline.com:8280/v1transactionwallet/1.0.0";
-    private final String basicAuthorizationToken = "cEQzTTlRU3RnWnRpNnFfZ3hBbEx3NnRaWWFJYTpLWmgyc0M5WFA3TTU0VHNrekJ1T3VMNklUUjhh";
+	
 	
 	public String storeRecords(MultipartFile file,BulkRechargeRequest request) throws IOException{
-		//Integer jobId= bulkRechargeFileRepo.findMaxValue();
 		String extension=null;
 		String originalFilename = file.getOriginalFilename();
 	    if (originalFilename != null) {
@@ -130,15 +123,10 @@ public class BulkRechargeService {
 			Integer totalRecord=((int)bulkRechargeFileRepo.count())+1;
 			String nextDigit=totalRecord.toString();
 			jobId = Integer.parseInt(formattedDate.replaceAll("-", "").concat(nextDigit));
-			//jobId=record.getJobId()+1;
+			
 		}
 		logger.info("current maximum JobId "+jobId);
-//		if(jobId==null) {
-//			jobId=1;
-//		}
-//		else {
-//			jobId++;
-//		}
+
 		int recordCount = 0;
 		BulkRechargeFile bulkRechargeFile=new BulkRechargeFile();
 		String fileName=request.getAgencyVan()+"_"+jobId;
@@ -153,11 +141,10 @@ public class BulkRechargeService {
 		
 		
 		try (InputStream inputStream = file.getInputStream()) {
-            // Create a workbook from the input stream
+            
             Workbook workbook = new XSSFWorkbook(inputStream);
 
-            // Get the first sheet from the workbook
-            Sheet sheet = workbook.getSheetAt(0); // Change the index if needed
+            Sheet sheet = workbook.getSheetAt(0); 
             Iterator<Row> rowIterator = sheet.iterator();
             
             if (rowIterator.hasNext()) {
@@ -165,22 +152,6 @@ public class BulkRechargeService {
             }
             while (rowIterator.hasNext()) {
             	BulkRecharge bulkRecharge=new BulkRecharge();
-            	//Integer id=bulkRechargeRepo.findMaxId();
-//            	Integer id=null;
-//            	BulkRecharge recharge=bulkRechargeRepo.findTopByOrderByIdDesc();
-//            	if(recharge==null) {
-//            		id=1;
-//            	}
-//            	else {
-//            		id=recharge.getId()+1;
-//            	}
-//            	logger.info("current maximum value of id "+id);
-//            	if(id==null) {
-//            		id=1;
-//            	}
-//            	else {
-//            		id++;
-//            	}
             	
                 Row row = rowIterator.next();
                 recordCount++;
@@ -212,8 +183,6 @@ public class BulkRechargeService {
                                  bulkRecharge.setAgencyId(idValue);
                             	 }
                             	
-                            	
-                            	//bulkRecharge.setAgencyId(cell.getStringCellValue());
                             }
                             if(columnIndex==4) {
                             	bulkRecharge.setAgentVan(cell.getStringCellValue());
@@ -223,7 +192,6 @@ public class BulkRechargeService {
                             	 ObjectMapper objectMapper = new ObjectMapper();
                                  JsonNode jsonNode = objectMapper.readTree(agentId);
                                  String idValue = jsonNode.get("_id").asText();
-                                 System.out.println("currently we want "+idValue);
                                  logger.info("agentId based on van "+idValue);
                                  System.out.println("current agentId "+idValue);
                             	bulkRecharge.setAgentId(idValue);
@@ -268,7 +236,6 @@ public class BulkRechargeService {
                 bulkRecharge.setCreatedBy(request.getAgencyName());
                 bulkRecharge.setModifiedBy(request.getAgencyName());
                 bulkRecharge.setJobId(jobId);
-              //  bulkRecharge.setId(id);
                 bulkRecharge.setCreatedAt(LocalDateTime.now());
                 bulkRecharge.setModifiedAt(LocalDateTime.now());
                 
@@ -281,8 +248,6 @@ public class BulkRechargeService {
             bulkRechargeFile.setModifiedAt(LocalDateTime.now());
             bulkRechargeFileRepo.save(bulkRechargeFile);
             
-
-            // Close the workbook
             workbook.close();
         }    
 		return "Records inserted Successfully";
@@ -298,7 +263,6 @@ public class BulkRechargeService {
 	}
 	
 	public List<BulkRecharge> getBulkRechargeRecord(Integer jobId, String flag){
-	//	Integer jobId= bulkRechargeFileRepo.findJobIdByFileName(fileName);
 		if(flag==null) {
 		return bulkRechargeRepo.findByJobIdAndArchivedStatus(jobId,"N");
 		}
@@ -344,11 +308,9 @@ public class BulkRechargeService {
 			if(data.getStatus().equalsIgnoreCase("Not Started")) {
 			data.setStatus("Processing");
 			bulkRechargeFileRepo.save(data);
-			//bulkRechargeRepo.updateStatusByJobId(jobId, "Processing");
 			updateStatusByJobId(jobId,"Processing");
 			scheduledTaskTriggered = true;           
-		//return "Your process has been completed with jobId "+jobId+ " ." ;
-            return" your process is in progress. please wait for sometime";
+			return "Your request with request id "+jobId+" has been received. Please check again after sometime";
 	
 	}else {
 				return " you are not allowed to request again";
@@ -359,16 +321,15 @@ public class BulkRechargeService {
 	}
     }
 	
-	@Scheduled(fixedRate = 10000)
+	@Scheduled(fixedRate = 30000)
     public void processRechargeScheduled() throws JsonProcessingException {
-    	 try {
+    	 
     		 if (scheduledTaskTriggered) {
     	            scheduledTaskTriggered = false;
     		 Integer jobId = job_Id;
     	     String emailId = email_Id;
     	     System.out.println("jobId "+jobId +" and emailId "+emailId);
-    	    
-             Thread.sleep(30000); // Sleep for 30 seconds
+    	     logger.info("jobId "+jobId +" and emailId "+emailId);
              Optional<BulkRechargeFile> bulkRechargeFile=bulkRechargeFileRepo.findById(jobId);
              int success=0;
 		     int failed=0;
@@ -377,20 +338,19 @@ public class BulkRechargeService {
 		     if(bulkRechargeFile.isPresent()) {
 			    data=bulkRechargeFile.get();
              	List<BulkRecharge> records=bulkRechargeRepo.findByJobIdAndArchivedStatus(jobId, "N");
-	//	bulkRechargeRepo.updateStatusByJobId(jobId, "Processing");
-		for(int i=0;i<records.size();i++) {
+		    for(int i=0;i<records.size();i++) {
 			flag=1;
 			BulkRecharge record=records.get(i);
 			System.out.println("record "+record);
 		RestTemplate restTemplate = new RestTemplate();
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(TOKEN_URL)
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(Constants.TOKEN_URL)
                 .queryParam("grant_type", "password")
                 .queryParam("username", "uppclgenx")
                 .queryParam("password", "APimTDu!2019@");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("Authorization", "Basic " + basicAuthorizationToken);
+        headers.set("Authorization", "Basic " + Constants.basicAuthorizationToken);
 
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
@@ -401,14 +361,13 @@ public class BulkRechargeService {
                 TokenResponse.class
         );
 
-        // Check if the request was successful (HTTP status code 200)
+     
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
              System.out.println("right now "+responseEntity.getBody()); 
          
         } 
         
         HttpHeaders mainheaders = new HttpHeaders();
-//        mainheaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         mainheaders.setContentType(MediaType.APPLICATION_JSON);
         mainheaders.set("Authorization", "Bearer " + responseEntity.getBody().getAccessToken());
         Integer amount=Integer.parseInt(record.getAmount());
@@ -423,18 +382,9 @@ public class BulkRechargeService {
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, mainheaders);
 
-
-//        MultiValueMap<String, Object> map= new LinkedMultiValueMap<>();
-//        
-//        map.add("amount", amount);
-//        map.add("destinationAgentId", record.getAgentId());
-//        map.add("sourceAgentId", record.getAgencyId());
-//        map.add("sourceType", "WALLET");
-//        
-//        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(map, mainheaders);
         ResponseEntity<TransactionWalletResponse> response=null;
         try {
-           response = restTemplate.exchange(API_URL, HttpMethod.POST, requestEntity, TransactionWalletResponse.class);
+           response = restTemplate.exchange(Constants.API_URL, HttpMethod.POST, requestEntity, TransactionWalletResponse.class);
       }catch(Exception e) {
     	  flag=0;
     	  record.setStatus("FAILED");
@@ -478,7 +428,9 @@ public class BulkRechargeService {
 	}
 		
 		System.out.println("sucess count "+success);
+		logger.info("sucess count "+success);
 		System.out.println("failed count "+failed);
+		logger.info("failed count "+failed);
 		data.setSucessCount(success);
 		data.setErrorCount(failed);
 		data.setStatus("Completed");
@@ -490,86 +442,18 @@ public class BulkRechargeService {
 			sendSimpleMail(data.getAgencyName(),jobId,data.getFileName(),emailId);
 		}
 }	
-       // return "Your request  with request id " +jobId +" has been received. We will notify once the process is completed";
-	//realone-->	return "Your request with request id "+jobId+" has been received. Please check again after sometime";
-		
-			
-          
+
     	 }     
            
-         } catch (InterruptedException e) {
-             Thread.currentThread().interrupt();
-         }
     }
 
-
-	
-    
-    
-//	public ResponseEntity<ByteArrayResource> downloadBulkRechargeFile(Integer jobId) throws IOException {
-//        // Set the response headers
-//        
-//        
-//        List<BulkRecharge> data= bulkRechargeRepo.findByJobIdAndArchivedStatus(jobId,"N");
-//        // Create a new Excel workbook and sheet
-//        Workbook workbook = new XSSFWorkbook();
-//        Sheet sheet = workbook.createSheet("Bulk_Recharge_Data");
-//
-//        // Create the header row
-//        Row headerRow = sheet.createRow(0);
-//        String[] headers = {"Discom Name", "Agency Name", "Agency Van", "Agent Van", "Agent Login ID",
-//                "Agent Unique Id", "Rechargeable Amount", "Status"};
-//
-//        for (int i = 0; i < headers.length; i++) {
-//            Cell cell = headerRow.createCell(i);
-//            cell.setCellValue(headers[i]);
-//        }
-//
-//       
-//
-//        int rowNum = 1;
-//        for (BulkRecharge item : data) {
-//            Row row = sheet.createRow(rowNum++);
-//            row.createCell(0).setCellValue(item.getDiscomName());
-//            row.createCell(1).setCellValue(item.getAgencyName());
-//            row.createCell(2).setCellValue(item.getAgencyVan());
-//            row.createCell(3).setCellValue(item.getAgentVan());
-//            row.createCell(4).setCellValue(item.getAgentLoginId());
-//            row.createCell(5).setCellValue(item.getAgentUniqueId());
-//            row.createCell(6).setCellValue(item.getAmount());
-//            row.createCell(7).setCellValue(item.getStatus());
-//           
-//        }
-//        
-//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//        workbook.write(outputStream);
-//        workbook.close();
-//
-//        byte[] result=outputStream.toByteArray();
-//        
-//        ByteArrayResource resource = new ByteArrayResource(result);
-//
-//        // Set response headers
-//        HttpHeaders mainheaders = new HttpHeaders();
-//        mainheaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Records.xlsx");
-//        mainheaders.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-//        mainheaders.setContentLength(result.length);
-//
-//        // Return ResponseEntity with the Excel data
-//        return ResponseEntity.ok()
-//                .headers(mainheaders)
-//                .body(resource);
-//    }
-	
 	public ResponseEntity<Map<String, Object>> downloadBulkRechargeFile(Integer jobId) {
 	    try {
 	        List<BulkRecharge> data = bulkRechargeRepo.findByJobIdAndArchivedStatus(jobId, "N");
 
-	        // Create a new Excel workbook and sheet
 	        Workbook workbook = new XSSFWorkbook();
 	        Sheet sheet = workbook.createSheet("Bulk_Recharge_Data");
 
-	        // Create the header row
 	        Row headerRow = sheet.createRow(0);
 	        String[] headers = {"Discom Name", "Agency Name", "Agency Van", "Agent Van", "Agent Login ID",
 	                "Agent Unique Id", "Rechargeable Amount", "Status"};
@@ -598,10 +482,9 @@ public class BulkRechargeService {
 
 	        byte[] excelData = outputStream.toByteArray();
 
-	        // Encode the Excel data as a Base64 string
+	        
 	        String base64ExcelData = Base64.getEncoder().encodeToString(excelData);
 
-	        // Prepare JSON response with a download link
 	        Map<String, Object> jsonResponse = new HashMap<>();
 	        jsonResponse.put("message", "File successfully generated.");
 	        jsonResponse.put("downloadLink", "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + base64ExcelData);
@@ -614,7 +497,6 @@ public class BulkRechargeService {
 	                .body(jsonResponse);
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        // Handle exceptions properly and return an error JSON response
 	        Map<String, Object> errorResponse = new HashMap<>();
 	        errorResponse.put("error", "Internal Server Error");
 	        errorResponse.put("message", "Error generating and sending the file: " + e.getMessage());
@@ -628,10 +510,6 @@ public class BulkRechargeService {
 	    }
 	}
 
-
-
-
-	
 	public String sendSimpleMail(String agencyName,Integer jobId,String fileName, String toEmailId) {
 		 try {
 	            SimpleMailMessage mailMessage= new SimpleMailMessage();

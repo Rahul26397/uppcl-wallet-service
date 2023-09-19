@@ -85,11 +85,6 @@ public class BulkRechargeController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 	
-//	@RequestMapping(value = "/downloadBulkRecharge", method = RequestMethod.GET)
-//    public ResponseEntity<ByteArrayResource> downloadBulkRechargeFile(@RequestParam("jobId") Integer jobId) throws IOException {
-//		return bulkRechargeService.downloadBulkRechargeFile(jobId);
-//  }
-	
 	@RequestMapping(value = "/downloadBulkRecharge", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> downloadBulkRechargeFile(@RequestParam("jobId") Integer jobId) throws IOException {
 		return bulkRechargeService.downloadBulkRechargeFile(jobId);
