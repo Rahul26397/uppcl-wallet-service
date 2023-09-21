@@ -2,11 +2,21 @@ package com.tequre.wallet.utils;
 
 public class Constants {
 	
-	public static final String TOKEN_URL = "https://ewallet-test.uppclonline.com:8280/token";
+	//public static final String TOKEN_URL = "https://ewallet-test.uppclonline.com:8280/token";
+	
+	public static final String TOKEN_URL = "https://ewallet.uppclonline.com:8280/token";
+	
+	public static final String TOKEN_USER="uppclgenx";
+	
+	public static final String TOKEN_PASSWORD= "APimUPrdU!2019@";//"APimTDu!2019@";
     
-	public static final String API_URL = "https://ewallet-test.uppclonline.com:8280/v1transactionwallet/1.0.0";
+	//public static final String API_URL = "https://ewallet-test.uppclonline.com:8280/v1transactionwallet/1.0.0";
+	
+	public static final String API_URL = "https://ewallet.uppclonline.com:8280/v1transactionwallet/1.0.0/";
     
-    public static final String basicAuthorizationToken = "cEQzTTlRU3RnWnRpNnFfZ3hBbEx3NnRaWWFJYTpLWmgyc0M5WFA3TTU0VHNrekJ1T3VMNklUUjhh";
+   // public static final String basicAuthorizationToken = "cEQzTTlRU3RnWnRpNnFfZ3hBbEx3NnRaWWFJYTpLWmgyc0M5WFA3TTU0VHNrekJ1T3VMNklUUjhh";
+    
+    public static final String basicAuthorizationToken = "aUQ5d1lWNlRWUGlWT014dmtxeF9qX1lBSnFFYTpfR180VGZuWlQyakg1YWFJTDBVSVFjZDN1MTRh";
     
     public static String USER_ID = "user_Id";
 

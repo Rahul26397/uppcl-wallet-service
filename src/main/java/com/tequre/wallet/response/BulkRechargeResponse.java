@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class BulkRechargeResponse implements Serializable {
 	
 	private String response;
+	
+
 
 	public String getResponse() {
 		return response;
