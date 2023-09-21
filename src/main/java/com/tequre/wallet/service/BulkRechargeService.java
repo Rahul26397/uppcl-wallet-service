@@ -60,10 +60,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 @Service
 public class BulkRechargeService {
-	
-
-    private boolean scheduledTaskTriggered = false;
-	
+		
 	private final Logger logger = LoggerFactory.getLogger(BulkRechargeService.class);
 	
 	 @Autowired 
@@ -89,7 +86,6 @@ public class BulkRechargeService {
         this.mongoTemplate = mongoTemplate;
     }
 	
-	private static Integer job_Id=null;
 	private static String email_Id=null;
 	
 	
@@ -297,7 +293,6 @@ public class BulkRechargeService {
 	}
 	
 	public String processRecharge(Integer jobId,String emailId) throws JsonProcessingException {
-		job_Id=jobId;
 		email_Id=emailId;
         
         
@@ -309,8 +304,7 @@ public class BulkRechargeService {
 			if(data.getStatus().equalsIgnoreCase("Not Started")) {
 			data.setStatus("Processing");
 			bulkRechargeFileRepo.save(data);
-			updateStatusByJobId(jobId,"IN_QUEUE");
-			scheduledTaskTriggered = true;           
+			updateStatusByJobId(jobId,"IN_QUEUE");           
 			return "Your request with request id "+jobId+" has been received. Please check again after sometime";
 	
 	}else {
@@ -322,23 +316,11 @@ public class BulkRechargeService {
 	}
     }
 	
-	@Scheduled(fixedRate = 30000)
+	@Scheduled(fixedRate = 10000)
     public void processRechargeScheduled() throws JsonProcessingException {
-    	 
-    		 if (scheduledTaskTriggered) {
-    	            scheduledTaskTriggered = false;
-    		 Integer jobId = job_Id;
-    	     String emailId = email_Id;
-    	     System.out.println("jobId "+jobId +" and emailId "+emailId);
-    	     logger.info("jobId "+jobId +" and emailId "+emailId);
-             Optional<BulkRechargeFile> bulkRechargeFile=bulkRechargeFileRepo.findById(jobId);
-             int success=0;
-		     int failed=0;
 		     int flag=1;
-		     BulkRechargeFile data=null;
-		     if(bulkRechargeFile.isPresent()) {
-			    data=bulkRechargeFile.get();
-             	List<BulkRecharge> records=bulkRechargeRepo.findByJobIdAndArchivedStatus(jobId, "N");
+		   
+             	List<BulkRecharge> records=bulkRechargeRepo.findByStatus("IN_QUEUE");
 		    for(int i=0;i<records.size();i++) {
 			flag=1;
 			BulkRecharge record=records.get(i);
@@ -388,12 +370,13 @@ public class BulkRechargeService {
            response = restTemplate.exchange(Constants.API_URL, HttpMethod.POST, requestEntity, TransactionWalletResponse.class);
       }catch(Exception e) {
     	  flag=0;
+    	  System.out.println("gigabytes");
     	  record.setStatus("FAILED");
-    	  failed++;
     	  bulkRechargeRepo.save(record);
     	  
       }
       if(flag==1) {
+    	  System.out.println("successfull");
         System.out.println("API Response: " + response.getBody());
         String[] parts = response.getBody().getLocation().split("/");
         String desiredString = parts[parts.length - 1];
@@ -414,37 +397,32 @@ public class BulkRechargeService {
 			Optional<Event> output=eventRepo.findById(record.getEventId());
 			
 			if(output.isPresent()) {
-				if(output.get().getStatus().toString().equalsIgnoreCase("SUCCESS")) {
-					success++;
-				}
-				else if(output.get().getStatus().toString().equalsIgnoreCase("FAILED")) {
-					failed++;
-				}
-			
+				
 			    System.out.println("final the event status"+output.get().getStatus().toString());
 				record.setStatus(output.get().getStatus().toString());
 				bulkRechargeRepo.save(record);
 			}
 		}
+			BulkRechargeFile bulkRechargeFile=bulkRechargeFileRepo.findByJobIdAndArchivedStatus(record.getJobId(),"N");
+			bulkRechargeFile.setSucessCount(bulkRechargeRepo.findByJobIdAndStatus(record.getJobId(),"SUCCESS").size());
+			bulkRechargeFile.setErrorCount(bulkRechargeRepo.findByJobIdAndStatus(record.getJobId(),"FAILED").size());
+			bulkRechargeFileRepo.save(bulkRechargeFile);
+			if(bulkRechargeRepo.findByJobIdAndArchivedStatus(record.getJobId(), "N").size()==(bulkRechargeRepo.findByJobIdAndStatus(record.getJobId(),"SUCCESS").size()+bulkRechargeRepo.findByJobIdAndStatus(record.getJobId(),"FAILED").size())) {
+				System.out.println("total records " + bulkRechargeRepo.findByJobIdAndArchivedStatus(record.getJobId(), "N").size()
+					    + " failed record " + bulkRechargeRepo.findByJobIdAndStatus(record.getJobId(), "SUCCESS").size()
+					    + " failed records " + bulkRechargeRepo.findByJobIdAndStatus(record.getJobId(), "FAILED").size());
+
+				bulkRechargeFile.setModifiedAt(LocalDateTime.now());
+				bulkRechargeFile.setStatus("Completed");
+				bulkRechargeFileRepo.save(bulkRechargeFile);
+				
+			}
+			
 	}
 		
-		System.out.println("sucess count "+success);
-		logger.info("sucess count "+success);
-		System.out.println("failed count "+failed);
-		logger.info("failed count "+failed);
-		data.setSucessCount(success);
-		data.setErrorCount(failed);
-		data.setStatus("Completed");
-		data.setModifiedAt(LocalDateTime.now());
-		bulkRechargeFileRepo.save(data);
-		
-		
-		if(emailId!=null) {
-			sendSimpleMail(data.getAgencyName(),jobId,data.getFileName(),emailId);
-		}
-}	
-
-    	 }     
+//		if(emailId!=null) {
+//			sendSimpleMail(data.getAgencyName(),jobId,data.getFileName(),emailId);
+//		}    	      
            
     }
 
