@@ -18,7 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class BulkRechargeFile {
 	
 	@Id
-	private Integer jobId;
+	private String jobId;
 	
 	private String agencyVan;
 	
@@ -40,11 +40,11 @@ public class BulkRechargeFile {
 	
 	 private LocalDateTime modifiedAt;
 
-	public Integer getJobId() {
+	public String getJobId() {
 		return jobId;
 	}
 
-	public void setJobId(Integer jobId) {
+	public void setJobId(String jobId) {
 		this.jobId = jobId;
 	}
 

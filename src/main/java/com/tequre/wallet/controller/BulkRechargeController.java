@@ -54,7 +54,7 @@ public class BulkRechargeController {
     }
 	
 	@RequestMapping(value = "/getBulkRecharge", method = RequestMethod.GET)
-    public ResponseEntity<?> getBulkRecharge(@RequestParam("jobId") Integer jobId,
+    public ResponseEntity<?> getBulkRecharge(@RequestParam("jobId") String jobId,
     		@RequestParam(value="flag",required=false)String flag) throws IOException {
 		
 		List<BulkRecharge> result=bulkRechargeService.getBulkRechargeRecord(jobId,flag);
@@ -63,7 +63,7 @@ public class BulkRechargeController {
     }
 	
 	@RequestMapping(value = "/deleteBulkRecords", method = RequestMethod.GET)
-    public ResponseEntity<?> deleteBulkRecords(@RequestParam("jobId") Integer jobId) throws IOException {
+    public ResponseEntity<?> deleteBulkRecords(@RequestParam("jobId") String jobId) throws IOException {
 		
 		String result=bulkRechargeService.deleteBulkRecords(jobId);
 		
@@ -74,7 +74,7 @@ public class BulkRechargeController {
     }
 	
 	@RequestMapping(value = "/processRecharge", method = RequestMethod.GET)
-    public ResponseEntity<?> processRecharge(@RequestParam("jobId") Integer jobId, 
+    public ResponseEntity<?> processRecharge(@RequestParam("jobId") String jobId, 
     		@RequestParam(value="EmailId", required=false) String emailId) throws IOException {
 		
 		String result=bulkRechargeService.processRecharge(jobId,emailId);
@@ -86,7 +86,7 @@ public class BulkRechargeController {
     }
 	
 	@RequestMapping(value = "/downloadBulkRecharge", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> downloadBulkRechargeFile(@RequestParam("jobId") Integer jobId) throws IOException {
+    public ResponseEntity<Map<String, Object>> downloadBulkRechargeFile(@RequestParam("jobId") String jobId) throws IOException {
 		return bulkRechargeService.downloadBulkRechargeFile(jobId);
   }
 	

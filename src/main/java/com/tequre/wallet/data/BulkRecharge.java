@@ -16,7 +16,7 @@ public class BulkRecharge {
 	 @Id
 	 @Field("_id")
 	 private String id;
-	 private Integer jobId;
+	 private String jobId;
 	 private String agencyName;
 	 private String  agencyVan;
 	 private String agencyId ;
@@ -45,11 +45,11 @@ public class BulkRecharge {
 		this.id = id;
 	}
 
-	public Integer getJobId() {
+	public String getJobId() {
 		return jobId;
 	}
 
-	public void setJobId(Integer jobId) {
+	public void setJobId(String jobId) {
 		this.jobId = jobId;
 	}
 

@@ -14,17 +14,21 @@ public interface BulkRechargeRepository extends MongoRepository<BulkRecharge,Str
 	
 	public BulkRecharge findTopByOrderByIdDesc();
 	
-	List<BulkRecharge> findByJobIdAndArchivedStatusAndStatus(Integer jobId,String archevedstatus, String status);
+	List<BulkRecharge> findByJobIdAndArchivedStatusAndStatus(String jobId,String archevedstatus, String status);
 	
-	List<BulkRecharge> findByJobIdAndArchivedStatus(Integer jobId, String status);
+	List<BulkRecharge> findByJobIdAndArchivedStatus(String jobId, String status);
 	
-	List<BulkRecharge> findByJobIdAndStatus(Integer jobId,String status);
+	List<BulkRecharge> findByJobIdAndStatus(String jobId,String status);
 	
-	List<BulkRecharge> findByJobIdAndArchivedStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(Integer jobId, String archivedStatus);
+	List<BulkRecharge> findByJobIdAndArchivedStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(String jobId, String archivedStatus);
 	
-	List<BulkRecharge> findByJobIdAndArchivedStatusAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(Integer jobId, String archivedStatus, String status);
+	List<BulkRecharge> findByJobIdAndArchivedStatusAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(String jobId, String archivedStatus, String status);
 	
 	List<BulkRecharge> findByStatus(String status);
+	
+	List<BulkRecharge> findByJobIdAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(String jobId, String status);
+	
+	List<BulkRecharge> findByArchivedStatusAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(String archivedstatus, String status);
 }
 
 
