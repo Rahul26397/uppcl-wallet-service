@@ -1,6 +1,7 @@
 package com.tequre.wallet.service;
 
 import static com.mongodb.client.model.Filters.eq;
+
 import static com.tequre.wallet.utils.Constants.AUTHORIZATION_HEADER;
 
 import com.tequre.wallet.config.IntegrationConfig;

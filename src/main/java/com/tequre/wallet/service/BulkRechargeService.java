@@ -109,7 +109,7 @@ public class BulkRechargeService {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         String formattedDate = dateFormat.format(currentDate);
 		BulkRechargeFile record =bulkRechargeFileRepo.findTopByOrderByJobIdDesc();
-		System.out.println("formattedDate: " + formattedDate);
+		logger.info("formattedDate: " + formattedDate);
 		formattedDate = formattedDate.replaceAll("-", "").trim();
 		
 		
@@ -120,9 +120,10 @@ public class BulkRechargeService {
 		else {
 			Integer totalRecord=((int)bulkRechargeFileRepo.count())+1;
 			String nextDigit=totalRecord.toString();
-			System.out.println("nextDigit: " + nextDigit);
+			logger.info("nextDigit is: "+nextDigit);
 			//jobId = Integer.parseInt(formattedDate.replaceAll("-", "").concat(nextDigit));
 			jobId = formattedDate.concat(nextDigit);
+			logger.info("jobId generated :"+jobId);
 			
 		}
 		logger.info("current maximum JobId "+jobId);
@@ -179,7 +180,7 @@ public class BulkRechargeService {
                                  JsonNode jsonNode = objectMapper.readTree(agencyId);
                                  String idValue = jsonNode.get("_id").asText();
                                  logger.info("agencyId based on van "+idValue);
-                                 System.out.println("current agencyId "+idValue);
+                                // System.out.println("current agencyId "+idValue);
                                  bulkRecharge.setAgencyId(idValue);
                             	 }
                             	
@@ -193,7 +194,7 @@ public class BulkRechargeService {
                                  JsonNode jsonNode = objectMapper.readTree(agentId);
                                  String idValue = jsonNode.get("_id").asText();
                                  logger.info("agentId based on van "+idValue);
-                                 System.out.println("current agentId "+idValue);
+                                // System.out.println("current agentId "+idValue);
                             	bulkRecharge.setAgentId(idValue);
                             	}
                             }
@@ -239,7 +240,7 @@ public class BulkRechargeService {
                 bulkRecharge.setJobId(jobId);
                 bulkRecharge.setCreatedAt(LocalDateTime.now());
                 bulkRecharge.setModifiedAt(LocalDateTime.now());
-                
+                logger.info("bulkRecharge record "+bulkRecharge);
                 bulkRechargeRepo.save(bulkRecharge);
                 
             }
@@ -260,7 +261,7 @@ public class BulkRechargeService {
 	}
 	
 	public List<BulkRechargeFile> getBulkRechargeFileRecord(String van){
-		Sort sort = Sort.by(Sort.Order.desc("_id"));
+		Sort sort = Sort.by(Sort.Order.desc("createdAt"));
 		return bulkRechargeFileRepo.findByAgencyVanAndArchivedStatus(van,"N",sort);
 	}
 	
@@ -321,7 +322,7 @@ public class BulkRechargeService {
     }
 	
 	
-	@Scheduled(fixedRate = 1000)
+	@Scheduled(fixedRate = 30000)
     public void processRechargeScheduled() throws JsonProcessingException {
 		     logger.info("schedular is called");
              List<BulkRechargeFile> bulkRechargeFiles=bulkRechargeFileRepo.findByStatus("Processing");
@@ -340,7 +341,7 @@ public class BulkRechargeService {
 		    	logger.info("current record of bulkRecharge "+records.get(i));
 			flag=1;
 			BulkRecharge record=records.get(i);
-			System.out.println("record "+record);
+		
 		RestTemplate restTemplate = new RestTemplate();
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(Constants.TOKEN_URL)
                 .queryParam("grant_type", "password")
@@ -362,8 +363,8 @@ public class BulkRechargeService {
 
      
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
-        	System.out.println("token executed successfully with accessToken: "+responseEntity.getBody().getAccessToken());
-             System.out.println("right now "+responseEntity.getBody()); 
+        	logger.info("token executed successfully with accessToken: "+responseEntity.getBody().getAccessToken());
+             
          
         } 
         
@@ -383,16 +384,17 @@ public class BulkRechargeService {
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, mainheaders);
 
         ResponseEntity<TransactionWalletResponse> response=null;
-        try {
-           response = restTemplate.exchange(Constants.API_URL, HttpMethod.POST, requestEntity, TransactionWalletResponse.class);
-           logger.info("transaction completed successfully ");
-      }catch(Exception e) {
-    	  flag=0;
-    	  record.setStatus("FAILED");
-    	  failed++;
-    	  bulkRechargeRepo.save(record);
-    	  
-      }
+        if(record.getAgencyId()==null ||record.getAgentId()==null ||record.getAmount()==null) {
+          flag=0;
+       	  record.setStatus("FAILED");
+       	  failed++;
+       	  bulkRechargeRepo.save(record);
+        }
+        else {
+        	response = restTemplate.exchange(Constants.API_URL, HttpMethod.POST, requestEntity, TransactionWalletResponse.class);
+            logger.info("transaction completed successfully ");
+        }
+      
       if(flag==1) {
         System.out.println("API Response: " + response.getBody());
         String[] parts = response.getBody().getLocation().split("/");
@@ -400,54 +402,45 @@ public class BulkRechargeService {
         System.out.println("eventId "+desiredString);
         logger.info("event Id for current bulkRecharge record: "+desiredString);
         record.setEventId(desiredString);
-        
-        bulkRechargeRepo.save(record);
+        Optional<Event> output=eventRepo.findById(record.getEventId());
+        if(output.isPresent()) {
+			if(output.get().getStatus().toString().equalsIgnoreCase("SUCCESS")) {
+				success++;
+			}
+			else if(output.get().getStatus().toString().equalsIgnoreCase("FAILED")) {
+				failed++;
+			}
+			record.setStatus(output.get().getStatus().toString());
+			BulkRechargeFile bulkRechargeFile=bulkRechargeFileRepo.findByJobIdAndArchivedStatus(record.getJobId(),"N");
+			bulkRechargeFile.setSucessCount(bulkRechargeRepo.findByJobIdAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(record.getJobId(),"SUCCESS").size());
+			bulkRechargeFile.setErrorCount(bulkRechargeRepo.findByJobIdAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(record.getJobId(),"FAILED").size());
+			bulkRechargeFileRepo.save(bulkRechargeFile);
+			bulkRechargeRepo.save(record);
+			
+			bulkRechargeFileRepo.save(bulkRechargeFile);	
+            bulkRechargeRepo.save(record);
         if (response.getStatusCode() == HttpStatus.OK) {
            
-            System.out.println("API Response: " + response.getBody());
+           // System.out.println("API Response: " + response.getBody());
         }
       }
 }
-		for(int i=0;i<records.size();i++) {
-			
-			BulkRecharge record=records.get(i);
-			if(record.getEventId()!=null) {
-			Optional<Event> output=eventRepo.findById(record.getEventId());
-			
-			if(output.isPresent()) {
-				if(output.get().getStatus().toString().equalsIgnoreCase("SUCCESS")) {
-					success++;
-				}
-				else if(output.get().getStatus().toString().equalsIgnoreCase("FAILED")) {
-					failed++;
-				}
-			
-			    System.out.println("final the event status"+output.get().getStatus().toString());
-				record.setStatus(output.get().getStatus().toString());
-				BulkRechargeFile bulkRechargeFile=bulkRechargeFileRepo.findByJobIdAndArchivedStatus(record.getJobId(),"N");
-				bulkRechargeFile.setSucessCount(bulkRechargeRepo.findByJobIdAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(record.getJobId(),"SUCCESS").size());
-				bulkRechargeFile.setErrorCount(bulkRechargeRepo.findByJobIdAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(record.getJobId(),"FAILED").size());
-				bulkRechargeFileRepo.save(bulkRechargeFile);
-				bulkRechargeRepo.save(record);
-			}
-		}
-	}
-		
-		System.out.println("sucess count "+success);
-		logger.info("sucess count "+success);
-		System.out.println("failed count "+failed);
-		logger.info("failed count "+failed);
-		data.setSucessCount(success);
-		data.setErrorCount(failed);
-		data.setStatus("Completed");
-		data.setModifiedAt(LocalDateTime.now());
-		bulkRechargeFileRepo.save(data);
+
 		
 		
 	}
+		  //  System.out.println("sucess count "+success);
+			logger.info("sucess count "+success);
+			//System.out.println("failed count "+failed);
+			logger.info("failed count "+failed);
+			data.setSucessCount(bulkRechargeRepo.findByJobIdAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(data.getJobId(),"SUCCESS").size());
+			data.setErrorCount(bulkRechargeRepo.findByJobIdAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(data.getJobId(),"FAILED").size());
+			data.setStatus("Completed");
+			data.setModifiedAt(LocalDateTime.now());
+			bulkRechargeFileRepo.save(data);
 }	
 
-	
+	}	
 
     	     
            
@@ -479,7 +472,7 @@ public class BulkRechargeService {
 	        Row headerRow = sheet.createRow(0);
 	        String[] headers = {"Discom Name", "Agency Name", "Agency Van", "Agent Van", "Agent Login ID",
 	                "Agent Unique Id", "Rechargeable Amount", "Status"};
-
+            logger.info("sheet headers "+headers.toString());
 	        for (int i = 0; i < headers.length; i++) {
 	            Cell cell = headerRow.createCell(i);
 	            cell.setCellValue(headers[i]);

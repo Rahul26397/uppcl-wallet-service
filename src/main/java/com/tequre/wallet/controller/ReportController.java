@@ -12,13 +12,16 @@ import com.tequre.wallet.data.ServiceMessage;
 import com.tequre.wallet.data.Transaction;
 import com.tequre.wallet.data.User;
 import com.tequre.wallet.data.Wallet;
+import com.tequre.wallet.enums.AgencyType;
 import com.tequre.wallet.enums.AgentType;
+import com.tequre.wallet.enums.Discom;
 import com.tequre.wallet.enums.PaymentType;
 import com.tequre.wallet.enums.SourceType;
 import com.tequre.wallet.enums.TransactionType;
 import com.tequre.wallet.repository.AgentRepository;
 import com.tequre.wallet.repository.WalletRepository;
 import com.tequre.wallet.request.Page;
+import com.tequre.wallet.response.ReportResponse;
 import com.tequre.wallet.response.RuralUrbanMappingResponse;
 import com.tequre.wallet.response.report.AgencyAgentAnalyticsRecord;
 import com.tequre.wallet.response.report.AgencyAgents;
@@ -41,6 +44,7 @@ import com.tequre.wallet.response.report.WalletDistributionReportEntry;
 import com.tequre.wallet.response.report.WalletReport;
 import com.tequre.wallet.response.report.WalletReportEntry;
 import com.tequre.wallet.service.DivisionService;
+import com.tequre.wallet.service.ReportService;
 import com.tequre.wallet.service.RuralUrbanMappingService;
 import com.tequre.wallet.utils.CommonUtils;
 import com.tequre.wallet.utils.Constants;
@@ -121,7 +125,10 @@ public class ReportController {
 
     @Autowired
     private DivisionService divisionService;
-
+    
+    @Autowired
+    private ReportService reportService;
+    
     // 23-01-2020 07:22:12 AM "dd-MM-yyyy hh:mm:ss aa" // "yyyy-MM-dd HH:mm:ss z"
     private static SimpleDateFormat JDF = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss aa");
 
@@ -1806,4 +1813,32 @@ public class ReportController {
         query.addCriteria(Criteria.where("agentType").is(AgentType.AGENT.name()));
         return mongoTemplate.findOne(query, Agent.class);
     }
+    
+    @RequestMapping(value = "/agencyType/divisionWiseReport",  method = RequestMethod.GET)
+    public  ReportResponse divisionWiseReport(
+    		@RequestParam(value = "startTime", required = true) Long startTime,
+    		@RequestParam(value = "endTime", required = true) Long endTime,
+    		@RequestParam(value="discom", required=false) Discom discom,
+    		@RequestParam(value="division", required=false) String division,
+    		@RequestParam(value="agencyType", required=false) AgencyType agencyType
+    		) throws ParseException{
+    	
+    	return reportService.divisionWiseReport(startTime, endTime, discom, division,agencyType);
+    	
+    }
+    
+    @RequestMapping(value = "/agencyType/downloadDivisionWiseReport",  method = RequestMethod.GET)
+    public  ResponseEntity<Map<String, Object>> downlaodDivisionWiseReport(
+    		@RequestParam(value = "startTime", required = true) Long startTime,
+    		@RequestParam(value = "endTime", required = true) Long endTime,
+    		@RequestParam(value="discom", required=false) Discom discom,
+    		@RequestParam(value="division", required=false) String division,
+    		@RequestParam(value="agencyType", required=false) AgencyType agencyType
+    		) throws ParseException{
+    	
+    	return reportService.downloaddivisionWiseReport(startTime, endTime, discom, division,agencyType);
+    	
+    }
+    
+    
 }

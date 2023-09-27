@@ -1,11 +1,13 @@
 package com.tequre.wallet.controller;
 import com.tequre.wallet.response.BulkRechargeResponse;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +21,7 @@ import com.tequre.wallet.data.BulkRecharge;
 import com.tequre.wallet.data.BulkRechargeFile;
 import com.tequre.wallet.request.BulkRechargeRequest;
 import com.tequre.wallet.service.BulkRechargeService;
+import com.tequre.wallet.service.ReportService;
 
 @RestController
 @RequestMapping("/v1/bulkrecharge")
@@ -26,6 +29,9 @@ public class BulkRechargeController {
 	
 	@Autowired
 	private BulkRechargeService bulkRechargeService;
+	
+	@Autowired
+	private ReportService reportService;
 
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST, consumes = {"multipart/form-data"})
 	public ResponseEntity<?> storeRecords(@RequestParam("file") MultipartFile file,
@@ -88,9 +94,6 @@ public class BulkRechargeController {
 	@RequestMapping(value = "/downloadBulkRecharge", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> downloadBulkRechargeFile(@RequestParam("jobId") String jobId) throws IOException {
 		return bulkRechargeService.downloadBulkRechargeFile(jobId);
-  }
-	
-	
-	
+  }	
 	
 }
