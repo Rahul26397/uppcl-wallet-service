@@ -36,6 +36,7 @@ import com.mongodb.client.MongoDatabase;
 import com.tequre.wallet.controller.ReportController;
 import com.tequre.wallet.data.BulkRecharge;
 import com.tequre.wallet.enums.AgencyType;
+import com.tequre.wallet.enums.AgentType;
 import com.tequre.wallet.enums.AreaType;
 import com.tequre.wallet.enums.Discom;
 import com.tequre.wallet.enums.TransactionType;
@@ -127,7 +128,7 @@ public class ReportService {
 	                ("activity", TransactionType.DEBIT.name())
 	                .append("transactionTime", new Document("$gte", new java.util.Date(startDate))
 	                        .append("$lte", new java.util.Date(endDate)))
-	                .append("entityType", "AGENCY")
+	                .append("entityType", new Document("$in", Arrays.asList(AgentType.DEPARTMENT.name(),AgentType.AGENCY.name())))
 	                .append("transactionType", new Document("$in", Arrays.asList(AreaType.RAPDRP.name(),AreaType.NON_RAPDRP.name())))
 	        ));
 	        aggregationPipeline.add(new Document("$lookup", new Document()

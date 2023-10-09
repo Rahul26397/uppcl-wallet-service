@@ -22,6 +22,8 @@ public interface BulkRechargeRepository extends MongoRepository<BulkRecharge,Str
 	
 	List<BulkRecharge> findByJobIdAndArchivedStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(String jobId, String archivedStatus);
 	
+	List<BulkRecharge> findByJobIdAndStatusAndRemarkNotNull(String jobId, String archivedStatus);
+	
 	List<BulkRecharge> findByJobIdAndArchivedStatusAndStatusAndAgentVanNotNullAndAgencyVanNotNullAndAmountNotNull(String jobId, String archivedStatus, String status);
 	
 	List<BulkRecharge> findByStatus(String status);

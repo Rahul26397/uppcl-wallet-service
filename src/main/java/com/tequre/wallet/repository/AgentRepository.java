@@ -21,5 +21,7 @@ public interface AgentRepository extends MongoRepository<Agent, String> {
 	@Query(value = "{'van': ?0}", fields = "{'_id': 1}")
     String findAgentIdByVan(String van);
 
+	@Query(value="{'van': ?0, 'agencyId': ?1, 'uniqueId': ?2}",fields = "{'_id': 1}")
+    String findAgentIdByVanAndAgencyIdAndUniqueId(String van, String agencyId, String uniqueId);
 	
 }

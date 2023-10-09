@@ -36,6 +36,8 @@ public class BulkRechargeFile {
 	
 	private String archivedStatus;
 	
+	private String remark;
+	
 	private LocalDateTime createdAt;
 	
 	 private LocalDateTime modifiedAt;
@@ -128,12 +130,23 @@ public class BulkRechargeFile {
 		this.modifiedAt = modifiedAt;
 	}
 
+	
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
 	@Override
 	public String toString() {
 		return "BulkRechargeFile [jobId=" + jobId + ", agencyVan=" + agencyVan + ", agencyName=" + agencyName
 				+ ", fileName=" + fileName + ", totalCount=" + totalCount + ", sucessCount=" + sucessCount
 				+ ", errorCount=" + errorCount + ", status=" + status + ", archivedStatus=" + archivedStatus
-				+ ", createdAt=" + createdAt + ", modifiedAt=" + modifiedAt + "]";
+				+ ", remark=" + remark + ", createdAt=" + createdAt + ", modifiedAt=" + modifiedAt + "]";
 	}
+
+	
 
 }

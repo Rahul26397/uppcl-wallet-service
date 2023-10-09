@@ -31,7 +31,7 @@ public class BulkRecharge {
 	 private String  archivedStatus;
 	 private String createdBy;
 	 private String modifiedBy;
-	 
+	 private String remark;
 	 
 	 private LocalDateTime createdAt;
 		
@@ -181,16 +181,26 @@ public class BulkRecharge {
 		this.modifiedAt = modifiedAt;
 	}
 
+	
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
 	@Override
 	public String toString() {
 		return "BulkRecharge [id=" + id + ", jobId=" + jobId + ", agencyName=" + agencyName + ", agencyVan=" + agencyVan
 				+ ", agencyId=" + agencyId + ", discomName=" + discomName + ", agentVan=" + agentVan + ", agentId="
 				+ agentId + ", agentLoginId=" + agentLoginId + ", agentUniqueId=" + agentUniqueId + ", amount=" + amount
 				+ ", eventId=" + eventId + ", status=" + status + ", archivedStatus=" + archivedStatus + ", createdBy="
-				+ createdBy + ", modifiedBy=" + modifiedBy + ", createdAt=" + createdAt + ", modifiedAt=" + modifiedAt
-				+ "]";
+				+ createdBy + ", modifiedBy=" + modifiedBy + ", remark=" + remark + ", createdAt=" + createdAt
+				+ ", modifiedAt=" + modifiedAt + "]";
 	}
-	 
+
+	
 	 
 	 
 			 
